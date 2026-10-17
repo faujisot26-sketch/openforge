@@ -1,0 +1,12 @@
+{
+  "name": "openforge",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A Gemma-powered guide to understanding open-source issues and planning a first contribution.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
