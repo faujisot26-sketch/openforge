@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f5f0">
+  <meta name="description" content="Try OpenForge: a beginner-friendly guide to understanding open-source issues.">
+  <title>OpenForge — Interactive demo</title>
+  <style>
+    :root{color-scheme:light;--paper:#f6f5f0;--ink:#1a211d;--muted:#727a73;--line:#dfe2d8;--green:#b9e47b;--green-dark:#314c24;--orange:#e98258;--card:#fffefa;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    *{box-sizing:border-box}body{margin:0;min-width:320px;background-color:var(--paper);background-image:radial-gradient(#d9ddd1 .65px,transparent .65px);background-size:17px 17px;color:var(--ink)}a{color:inherit}.shell{width:min(1040px,calc(100% - 40px));margin:0 auto}.topbar{height:68px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(26,33,29,.12)}.brand{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-weight:800;letter-spacing:-.6px}.brand-mark{width:25px;height:25px;border-radius:8px 8px 8px 2px;background:var(--ink);display:grid;place-items:center;color:var(--green);transform:rotate(-4deg)}.topbar-right{display:flex;align-items:center;gap:12px}.pill{display:inline-flex;align-items:center;gap:7px;color:#66705e;font-size:10px;letter-spacing:.08em}.dot{width:7px;height:7px;border-radius:50%;background:#83b34f;box-shadow:0 0 0 3px #83b34f26}.github{font-size:12px;font-weight:700;border:1px solid var(--line);padding:8px 11px;border-radius:6px;background:#ffffff8c;text-decoration:none}.hero{padding:52px 0 33px;display:flex;justify-content:space-between;align-items:center;gap:24px}.eyebrow{display:flex;align-items:center;gap:9px;font-size:10px;letter-spacing:.13em;color:#697360}.eyebrow:before{content:"";width:22px;height:1px;background:#769450}h1{margin:17px 0 13px;font-size:clamp(42px,6vw,64px);line-height:.99;letter-spacing:-.075em}h1 em{color:#718b50;font-style:normal}.intro{max-width:510px;margin:0;color:#667069;font-size:14px;line-height:1.7}.demo-note{max-width:265px;padding:15px 16px;border:1px solid #dfe7d4;border-radius:9px;background:#e9f1dc;color:#526347;font-size:11px;line-height:1.6}.demo-note strong{display:block;margin-bottom:5px;color:#314c24;font-size:12px}.workspace{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;align-items:stretch}.card{border:1px solid #e1e3dc;border-radius:10px;background:var(--card);box-shadow:0 12px 32px #29302709}.input-card{padding:24px}.card-title{display:flex;gap:12px;align-items:flex-start;margin-bottom:20px}.step{padding:7px 8px;border-radius:5px;background:#edf4e4;color:#69874b;font:10px ui-monospace,monospace}.card-title h2{margin:0;font-size:19px;letter-spacing:-.04em}.card-title p{margin:5px 0 0;color:var(--muted);font-size:12px}label{display:block;margin-bottom:8px;font-size:11px;font-weight:700}.url-box{height:46px;padding:0 11px;display:flex;align-items:center;gap:9px;border:1px solid #dfe3d8;border-radius:6px;background:#fcfcf8}.url-box span{color:#859274}.url-box input{min-width:0;flex:1;border:0;outline:0;background:transparent;color:var(--ink);font-size:11px}.helper{margin:8px 0 16px;color:#899183;font-size:10px}.buttons{display:flex;gap:9px}.primary,.secondary{min-height:44px;padding:0 14px;border-radius:6px;cursor:pointer;font:600 11px inherit}.primary{flex:1;border:0;background:var(--ink);color:white}.primary:hover{background:#2b3930}.secondary{border:1px solid var(--line);background:white;color:#3f4a3e}.privacy{margin:12px 0 0;color:#858d82;font-size:9px;line-height:1.5}.how-card{position:relative;overflow:hidden;padding:23px;background:#e9f1dc;border-color:#dfe7d4}.kicker{color:#738362;font-size:9px;letter-spacing:.12em}.how-card h2{margin:17px 0 9px;font-size:24px;letter-spacing:-.05em}.how-card p{max-width:285px;color:#687463;font-size:11px;line-height:1.65}.steps{padding:0;margin:18px 0 0;list-style:none}.steps li{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid #53693e24;color:#46533f;font-size:10px}.steps li span{color:#7e955f;font:9px ui-monospace,monospace}.result{margin:24px 0;border:1px solid var(--line);border-radius:10px;background:var(--card);overflow:hidden}.result[hidden]{display:none}.result-top{padding:22px 24px 13px;display:flex;justify-content:space-between;align-items:flex-end;gap:15px}.result-top h2{margin:8px 0 0;font-size:23px;letter-spacing:-.05em}.sample-badge{flex:none;padding:6px 8px;border-radius:99px;background:#fff2e7;color:#9b5535;font-size:9px;font-weight:700;letter-spacing:.04em}.issue-row{margin:0 24px 17px;padding:12px 13px;border:1px solid #e6e8e0;border-radius:7px;background:#fdfdf9}.issue-row small{display:block;margin-bottom:5px;color:#748268;font-size:9px;letter-spacing:.08em}.issue-row a{font-size:12px;font-weight:700;color:#526e3b}.issue-row p{margin:5px 0 0;color:#70796e;font-size:10px;line-height:1.5}.plan{padding:0 24px 22px;display:grid;grid-template-columns:1fr 1fr;gap:11px}.block{padding:14px;border:1px solid #e6e8e0;border-radius:7px;background:#fdfdf9}.wide{grid-column:1/-1}.block h3{margin:0 0 7px;color:#748268;font:500 9px ui-monospace,monospace;letter-spacing:.09em;text-transform:uppercase}.block p,.block li{color:#505a50;font-size:11px;line-height:1.6}.block p{margin:0}.block ul,.block ol{padding-left:17px;margin:0}.block li+li{margin-top:4px}.path{display:grid;grid-template-columns:minmax(80px,.7fr) 1fr;gap:9px;padding:4px 0;color:#667069;font-size:10px;line-height:1.5}.path code{color:#57713e;font:10px ui-monospace,monospace;overflow-wrap:anywhere}.caveat{padding:11px 24px 15px;border-top:1px solid #e8e9e2;color:#818a7c;font-size:9px;line-height:1.5}.footer{min-height:62px;margin-top:24px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #1a211d1f;color:#899184;font:9px ui-monospace,monospace;letter-spacing:.08em}.footer strong{color:#687d4f;font-weight:500}.toast{margin-top:10px;color:#7b4b33;font-size:10px}
+    @media(max-width:760px){.hero{align-items:flex-start;flex-direction:column;padding-top:39px}.demo-note{max-width:none}.workspace{grid-template-columns:1fr}.how-card{min-height:260px}.shell{width:calc(100% - 30px)}}
+    @media(max-width:540px){.topbar{height:59px}.pill{font-size:8px}.github{font-size:10px;padding:7px}.hero{padding-bottom:24px}.intro{font-size:12px}.input-card,.how-card{padding:19px}.buttons{flex-direction:column}.plan{grid-template-columns:1fr;padding:0 14px 16px}.wide{grid-column:auto}.result-top{padding:18px 14px 12px;align-items:flex-start;flex-direction:column}.issue-row{margin:0 14px 14px}.caveat{padding:10px 14px}.footer{font-size:7px}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="OpenForge home"><span class="brand-mark" aria-hidden="true">↗</span><span>openforge</span></a>
+      <div class="topbar-right"><span class="pill"><span class="dot"></span> GEMMA 4 · OPEN SOURCE</span><a class="github" href="https://github.com/faujisot26-sketch/openforge" target="_blank" rel="noreferrer">GitHub ↗</a></div>
+    </header>
+    <main>
+      <section class="hero">
+        <div><div class="eyebrow">YOUR FIRST CONTRIBUTION STARTS HERE</div><h1>Find your way<br>into <em>open source.</em></h1><p class="intro">A good issue can be hard to decode. OpenForge turns one into a clear, careful plan you can actually start.</p></div>
+        <aside class="demo-note"><strong>Interactive preview</strong>This page uses a clearly labeled sample plan so you can explore the experience without an API key. The full app sends real issues to Gemma 4 when run with a Gemini API key.</aside>
+      </section>
+      <section class="workspace" aria-label="Try OpenForge">
+        <div class="card input-card">
+          <div class="card-title"><span class="step">01</span><div><h2>Bring an issue</h2><p>Start with a public GitHub issue that interests you.</p></div></div>
+          <form id="sample-form">
+            <label for="issue-url">GitHub issue link</label>
+            <div class="url-box"><span aria-hidden="true">⌘</span><input id="issue-url" type="url" value="https://github.com/firstcontributions/first-contributions/issues/126687" aria-label="GitHub issue link"></div>
+            <p class="helper">Sample issue · First Contributions · beginner instructions</p>
+            <div class="buttons"><button class="primary" type="submit">Show sample contribution plan&nbsp; ↗</button><button class="secondary" id="repo-button" type="button">View source</button></div>
+            <p class="privacy">Sample preview only: clicking the button displays an illustrative response and does not make an AI API call.</p>
+          </form>
+        </div>
+        <aside class="card how-card"><div class="kicker">THE OPENFORGE METHOD</div><h2>Clarity before code.</h2><p>Less guessing. A smaller first step. A better conversation with maintainers.</p><ol class="steps"><li><span>01</span> Understand the issue in plain language</li><li><span>02</span> See what to inspect first</li><li><span>03</span> Know how to check your work</li></ol></aside>
+      </section>
+      <section class="result" id="result" hidden aria-live="polite">
+        <div class="result-top"><div><div class="eyebrow">YOUR CONTRIBUTION PLAN</div><h2>Here’s a place to begin.</h2></div><span class="sample-badge">ILLUSTRATIVE SAMPLE · NOT LIVE AI OUTPUT</span></div>
+        <div class="issue-row"><small>SAMPLE GITHUB ISSUE</small><a href="https://github.com/firstcontributions/first-contributions/issues/126687" target="_blank" rel="noreferrer">Suggestion to improve beginner contribution instructions ↗</a><p>The issue proposes adding a simple checklist for forking a repository, creating a branch, committing a change, and opening a pull request.</p></div>
+        <div class="plan">
+          <section class="block wide"><h3>The issue, in plain language</h3><p>A new contributor is asking for a short checklist that makes the first contribution workflow easier to follow.</p></section>
+          <section class="block wide"><h3>The problem to solve</h3><p>Beginners may understand each step separately but still need a clear order for moving from a fork to a pull request.</p></section>
+          <section class="block"><h3>Start here</h3><ol><li>Read the repository README and contribution instructions.</li><li>Find where the existing beginner steps are documented.</li><li>Draft a checklist that follows the project’s current workflow.</li><li>Ask a maintainer to confirm the steps before expanding the change.</li></ol></section>
+          <section class="block"><h3>Areas to inspect</h3><div class="path"><code>README.md</code><span>Look for the current contribution walkthrough.</span></div><div class="path"><code>CONTRIBUTING.md</code><span>Check for rules the checklist must preserve.</span></div></section>
+          <section class="block"><h3>How to check your work</h3><ul><li>Confirm every checklist step matches the documented process.</li><li>Preview the Markdown to ensure it is easy to scan.</li><li>Check all linked instructions still open.</li></ul></section>
+          <section class="block"><h3>Ask the maintainer</h3><ul><li>Should the checklist cover command-line steps, GitHub Desktop, or both?</li><li>Is there a preferred place for beginner onboarding material?</li></ul></section>
+        </div>
+        <div class="caveat">AI-generated suggestions are starting points. Verify file paths and instructions in the repository before making changes. This public preview uses a prewritten sample; it does not call Gemma 4.</div>
+      </section>
+    </main>
+    <footer class="footer"><span>OPEN SOURCE SHOULD FEEL OPEN TO EVERYONE.</span><span>FULL APP BUILT WITH <strong>GEMMA 4</strong></span></footer>
+  </div>
+  <script>
+    const result=document.querySelector("#result");
+    document.querySelector("#sample-form").addEventListener("submit",event=>{event.preventDefault();result.hidden=false;result.scrollIntoView({behavior:"smooth",block:"start"});});
+    document.querySelector("#repo-button").addEventListener("click",()=>window.open("https://github.com/faujisot26-sketch/openforge","_blank","noopener,noreferrer"));
+  </script>
+</body>
+</html>
