@@ -1,0 +1,8 @@
+{
+  "name": "OpenForge",
+  "description": "Understand a GitHub issue and find a safe first step into open source with OpenForge, powered by Gemma 4.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

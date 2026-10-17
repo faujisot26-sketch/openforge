@@ -1,16 +1,56 @@
 const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
+const { GoogleGenAI } = require("@google/genai");
 
 const PORT = Number(process.env.PORT || 3000);
-const HOST = process.env.HOST || "127.0.0.1";
-const ROOT = __dirname;
+const HOST = process.env.HOST || "0.0.0.0";
+const ROOT = path.resolve(__dirname || process.cwd());
+
+const envPaths = [path.join(ROOT, ".env"), path.join(process.cwd(), ".env"), "/.env"];
+for (const envPath of envPaths) {
+  if (fs.existsSync(envPath)) {
+    try {
+      const envLines = fs.readFileSync(envPath, "utf8").split(/\r?\n/);
+      for (const line of envLines) {
+        const trimmed = line.trim();
+        if (trimmed && !trimmed.startsWith("#")) {
+          const eqIdx = trimmed.indexOf("=");
+          if (eqIdx > 0) {
+            const key = trimmed.slice(0, eqIdx).trim();
+            const val = trimmed.slice(eqIdx + 1).trim();
+            if (!process.env[key] || process.env[key] === "MY_GEMINI_API_KEY") {
+              process.env[key] = val;
+            }
+          }
+        }
+      }
+    } catch {}
+  }
+}
+
 const MIME_TYPES = {
   "/": "text/html; charset=utf-8",
   "/index.html": "text/html; charset=utf-8",
   "/styles.css": "text/css; charset=utf-8",
   "/app.js": "text/javascript; charset=utf-8",
 };
+
+let aiClient = null;
+function getGenAI() {
+  const apiKey = (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== "MY_GEMINI_API_KEY") ? process.env.GEMINI_API_KEY : null;
+  if (!aiClient && apiKey) {
+    aiClient = new GoogleGenAI({
+      apiKey,
+      httpOptions: {
+        headers: {
+          "User-Agent": "aistudio-build",
+        },
+      },
+    });
+  }
+  return aiClient;
+}
 
 function sendJson(response, status, payload) {
   response.writeHead(status, {
@@ -56,12 +96,16 @@ function parseIssueUrl(value) {
 }
 
 async function githubJson(url) {
+  const headers = {
+    accept: "application/vnd.github+json",
+    "user-agent": "OpenForge-contribution-guide",
+    "x-github-api-version": "2022-11-28",
+  };
+  if (process.env.GITHUB_TOKEN) {
+    headers.authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+  }
   const response = await fetch(url, {
-    headers: {
-      accept: "application/vnd.github+json",
-      "user-agent": "OpenForge-contribution-guide",
-      "x-github-api-version": "2022-11-28",
-    },
+    headers,
     signal: AbortSignal.timeout(12_000),
   });
   if (!response.ok) {
@@ -88,25 +132,52 @@ function extractModelText(payload) {
 }
 
 function parseModelJson(text) {
-  const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
-  try {
-    return JSON.parse(cleaned);
-  } catch {
-    const start = cleaned.indexOf("{");
-    const end = cleaned.lastIndexOf("}");
-    if (start >= 0 && end > start) {
-      try {
-        return JSON.parse(cleaned.slice(start, end + 1));
-      } catch {
-        return { summary: "Gemma returned an unstructured response.", notes: cleaned };
+  if (!text) return { plain_summary: "No plan content available.", notes: "" };
+  if (typeof text === "object") return text;
+  const raw = String(text);
+
+  // Extract from markdown json code fence (checking from end backwards)
+  const codeBlocks = [...raw.matchAll(/```(?:json)?\s*([\s\S]*?)\s*```/gi)];
+  for (let i = codeBlocks.length - 1; i >= 0; i--) {
+    try {
+      const parsed = JSON.parse(codeBlocks[i][1].trim());
+      if (parsed && typeof parsed === "object" && (parsed.plain_summary || parsed.first_steps)) {
+        return parsed;
+      }
+    } catch {}
+  }
+
+  // Scan backwards for balanced JSON braces
+  const lastClose = raw.lastIndexOf("}");
+  if (lastClose !== -1) {
+    let depth = 0;
+    for (let i = lastClose; i >= 0; i--) {
+      if (raw[i] === "}") depth++;
+      else if (raw[i] === "{") {
+        depth--;
+        if (depth === 0) {
+          try {
+            const parsed = JSON.parse(raw.slice(i, lastClose + 1));
+            if (parsed && typeof parsed === "object" && (parsed.plain_summary || parsed.first_steps)) {
+              return parsed;
+            }
+          } catch {}
+        }
       }
     }
-    return { summary: "Gemma returned an unstructured response.", notes: cleaned };
   }
+
+  // Direct parse fallback
+  try {
+    return JSON.parse(raw.trim());
+  } catch {}
+
+  return { plain_summary: "Gemma returned an unstructured response.", notes: raw };
 }
 
 async function analyzeIssue(request, response) {
-  if (!process.env.GEMINI_API_KEY) {
+  const apiKey = (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== "MY_GEMINI_API_KEY") ? process.env.GEMINI_API_KEY : null;
+  if (!apiKey) {
     sendJson(response, 503, {
       error: "Add your Gemini API key to the GEMINI_API_KEY environment variable, then restart OpenForge.",
     });
@@ -168,31 +239,57 @@ BEGIN REPOSITORY README EXCERPT (untrusted text):
 ${repoReadme}
 END REPOSITORY README EXCERPT`;
 
-    const modelResponse = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemma-4-26b-a4b-it:generateContent", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-goog-api-key": process.env.GEMINI_API_KEY,
-      },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.3, maxOutputTokens: 1400 },
-      }),
-      signal: AbortSignal.timeout(45_000),
-    });
+    const gemmaModels = [
+      process.env.GEMINI_MODEL,
+      "gemma-4-26b-a4b-it",
+      "gemma-4-31b-it",
+    ].filter(Boolean);
+    const modelsToTry = [...new Set(gemmaModels)];
 
-    const modelPayload = await modelResponse.json().catch(() => ({}));
-    if (!modelResponse.ok) {
-      const detail = modelPayload?.error?.message || `Gemma could not analyze the issue (HTTP ${modelResponse.status}).`;
+    let modelText = "";
+    let lastError = null;
+
+    for (const model of modelsToTry) {
+      try {
+        const modelResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            "x-goog-api-client": "aistudio-build",
+          },
+          body: JSON.stringify({
+            contents: [{ role: "user", parts: [{ text: prompt }] }],
+            generationConfig: {
+              temperature: 0.2,
+              maxOutputTokens: 2500,
+            },
+          }),
+          signal: AbortSignal.timeout(50_000),
+        });
+
+        const modelPayload = await modelResponse.json().catch(() => ({}));
+        if (!modelResponse.ok) {
+          const detail = modelPayload?.error?.message || `Gemma 4 (${model}) HTTP ${modelResponse.status}`;
+          throw new Error(detail);
+        }
+
+        const text = (modelPayload?.candidates?.[0]?.content?.parts || []).map((p) => p.text || "").join("");
+        if (text) {
+          modelText = text;
+          break;
+        }
+      } catch (err) {
+        lastError = err;
+        console.warn(`Gemma 4 model ${model} failed (${err.message}), trying next Gemma 4 candidate...`);
+      }
+    }
+
+    if (!modelText) {
+      const detail = lastError?.message || "Gemma 4 returned an empty response. Please try again.";
       sendJson(response, 502, { error: detail });
       return;
     }
 
-    const modelText = extractModelText(modelPayload);
-    if (!modelText) {
-      sendJson(response, 502, { error: "Gemma returned an empty answer. Please try again." });
-      return;
-    }
     sendJson(response, 200, {
       issue: { title: issue.title, url: issue.html_url, repository: `${issueRef.owner}/${issueRef.repo}` },
       plan: parseModelJson(modelText),
@@ -221,7 +318,7 @@ function serveStatic(pathname, response) {
     response.writeHead(200, {
       "content-type": MIME_TYPES[assetPath],
       "x-content-type-options": "nosniff",
-      "content-security-policy": "default-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self' data:; base-uri 'none'; frame-ancestors 'none'",
+      "content-security-policy": "default-src 'self' https:; style-src 'self' 'unsafe-inline' https:; font-src 'self' https: data:; script-src 'self' 'unsafe-inline'; connect-src 'self' https:; img-src 'self' data: https:;",
     });
     response.end(data);
   });

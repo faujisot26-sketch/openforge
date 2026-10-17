@@ -30,14 +30,14 @@ The GitHub API and Gemini API both need to be reachable. GitHub's unauthenticate
 
 ## How the AI is used
 
-The local Node.js server fetches the issue, up to six recent comments, and the repository README from GitHub. It sends those excerpts to the Gemma 4 `gemma-4-26b-a4b-it` model through Google's Gemini API. The model returns a structured contribution plan. The app labels candidate files as hypotheses and asks contributors to verify them in the codebase.
+The server fetches the issue, up to six recent comments, and the repository README from GitHub. It sends those excerpts securely to the official Gemma 4 model (`gemma-4-26b-a4b-it`, with `gemma-4-31b-it` supported) through Google's Gemini API. The model analyzes the requirements and returns a structured contribution plan. The app labels candidate files as hypotheses and prompts contributors to inspect them in the codebase.
 
 ## Stack
 
 - HTML, CSS, and browser JavaScript
-- Node.js built-in HTTP server and `fetch`
+- Node.js server with server-side API proxy
 - GitHub REST API
-- Gemma 4 through the Gemini API
+- Gemma 4 (`gemma-4-26b-a4b-it`) via Gemini API
 
 ## Privacy and limits
 

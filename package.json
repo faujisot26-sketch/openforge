@@ -4,9 +4,14 @@
   "private": true,
   "description": "A Gemma-powered guide to understanding open-source issues and planning a first contribution.",
   "scripts": {
+    "dev": "node server.js",
+    "build": "node -e 'process.exit(0)'",
     "start": "node server.js"
   },
   "engines": {
     "node": ">=18"
+  },
+  "dependencies": {
+    "@google/genai": "^2.30.0"
   }
 }

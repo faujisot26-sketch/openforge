@@ -71,11 +71,11 @@ form.addEventListener("submit", async (event) => {
   errorMessage.hidden = true;
   errorMessage.textContent = "";
   planContent.replaceChildren();
-  resultTitle.textContent = "Reading the issue…";
+  resultTitle.textContent = "Analyzing the issue with Gemma 4…";
   issueSource.hidden = true;
   resultSection.hidden = false;
   submitButton.disabled = true;
-  submitButton.querySelector(".button-label").textContent = "Building your plan…";
+  submitButton.querySelector(".button-label").textContent = "Analyzing with Gemma 4…";
 
   try {
     const response = await fetch("/api/analyze", {
