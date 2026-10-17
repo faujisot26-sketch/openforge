@@ -3,7 +3,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const PORT = Number(process.env.PORT || 3000);
-const HOST = "127.0.0.1";
+const HOST = process.env.HOST || "127.0.0.1";
 const ROOT = __dirname;
 const MIME_TYPES = {
   "/": "text/html; charset=utf-8",
